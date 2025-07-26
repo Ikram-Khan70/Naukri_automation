@@ -1,6 +1,7 @@
 from playwright.sync_api import sync_playwright
 import os
 
+# Environment variables from GitHub Secrets
 NAUKRI_EMAIL = os.getenv("NAUKRI_EMAIL")
 NAUKRI_PASS = os.getenv("NAUKRI_PASS")
 FULL_NAME = "Mohammed Ikram Khan"
@@ -10,23 +11,22 @@ with sync_playwright() as p:
     context = browser.new_context()
     page = context.new_page()
 
-    # Go to Naukri login page
+    # Go to login page
     page.goto("https://www.naukri.com/mnjuser/login")
 
-    # Login
+    # Wait and fill login credentials
+    page.wait_for_selector("input[name='username']", timeout=15000)
     page.fill("input[name='username']", NAUKRI_EMAIL)
+
+    page.wait_for_selector("input[name='password']", timeout=10000)
     page.fill("input[name='password']", NAUKRI_PASS)
+
+    # Click login
     page.click("button[type='submit']")
-    page.wait_for_timeout(5000)
+    page.wait_for_timeout(5000)  # Let the page load
 
-    # Go to Profile Page
-    page.goto("https://www.naukri.com/mnjuser/profile")  # Adjust URL if needed
-    page.wait_for_timeout(3000)
+    # Save screenshot after login attempt
+    page.screenshot(path="after_login.png")
 
-    # Locate and update full name field (Example: placeholder logic)
-    page.click("text='Edit'")  # Depends on actual selector
-    page.fill("input[name='fullName']", FULL_NAME)
-    page.click("button:has-text('Save')")  # Save button
-
-    print("Profile updated successfully")
+    print("Login attempt finished.")
     browser.close()
